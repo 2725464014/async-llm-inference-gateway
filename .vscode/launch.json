@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Gateway",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["main:app", "--reload", "--host", "127.0.0.1", "--port", "8001"],
+      "jinja": true,
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {"PYTHONPATH": "${workspaceFolder}"}
+    }
+  ]
+}
