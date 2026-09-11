@@ -1,0 +1,187 @@
+[
+  {
+    "backend": "onnx",
+    "concurrency": 1,
+    "config": {
+      "requests": 64,
+      "max_batch_size": 4,
+      "batch_timeout_ms": 5
+    },
+    "results": [
+      {
+        "mode": "direct",
+        "total_requests": 64,
+        "completed": 64,
+        "errors": 0,
+        "error_rate": 0.0,
+        "throughput_requests_per_second": 3313.4697723006343,
+        "latency_ms": {
+          "mean": 0.2864531250423852,
+          "p50": 0.1877500003502064,
+          "p95": 0.22928500052330492,
+          "p99": 3.237717999472804
+        },
+        "queue_wait_ms": {
+          "mean": 0.0,
+          "p95": 0.0
+        },
+        "backend_execution_ms": {
+          "mean": 0.2864531250423852,
+          "p95": 0.22928500052330492
+        },
+        "batch_size_distribution": {},
+        "backend": "onnx"
+      },
+      {
+        "mode": "batched",
+        "total_requests": 64,
+        "completed": 64,
+        "errors": 0,
+        "error_rate": 0.0,
+        "throughput_requests_per_second": 4539.715416607539,
+        "latency_ms": {
+          "mean": 0.20957812503752393,
+          "p50": 0.2556999997977982,
+          "p95": 0.3000049995534937,
+          "p99": 0.309766999380372
+        },
+        "queue_wait_ms": {
+          "mean": 0.055617187413758984,
+          "p95": 0.10045500030173571
+        },
+        "backend_execution_ms": {
+          "mean": 0.13679218758966272,
+          "p95": 0.19981500013273035
+        },
+        "batch_size_distribution": {
+          "1": 64
+        },
+        "backend": "onnx"
+      }
+    ]
+  },
+  {
+    "backend": "onnx",
+    "concurrency": 4,
+    "config": {
+      "requests": 64,
+      "max_batch_size": 4,
+      "batch_timeout_ms": 5
+    },
+    "results": [
+      {
+        "mode": "direct",
+        "total_requests": 64,
+        "completed": 64,
+        "errors": 0,
+        "error_rate": 0.0,
+        "throughput_requests_per_second": 6188.836885553385,
+        "latency_ms": {
+          "mean": 0.3810828124812815,
+          "p50": 0.30220000007830095,
+          "p95": 0.546045000282902,
+          "p99": 2.019807999558898
+        },
+        "queue_wait_ms": {
+          "mean": 0.0,
+          "p95": 0.0
+        },
+        "backend_execution_ms": {
+          "mean": 0.3810828124812815,
+          "p95": 0.546045000282902
+        },
+        "batch_size_distribution": {},
+        "backend": "onnx"
+      },
+      {
+        "mode": "batched",
+        "total_requests": 64,
+        "completed": 64,
+        "errors": 0,
+        "error_rate": 0.0,
+        "throughput_requests_per_second": 16478.282139546984,
+        "latency_ms": {
+          "mean": 0.21133124991479235,
+          "p50": 0.19044999999096035,
+          "p95": 0.3458750000845612,
+          "p99": 0.3585620001013012
+        },
+        "queue_wait_ms": {
+          "mean": 0.05992500011586799,
+          "p95": 0.11916499984181428
+        },
+        "backend_execution_ms": {
+          "mean": 0.1334687497660525,
+          "p95": 0.20290000029490332
+        },
+        "batch_size_distribution": {
+          "4": 64
+        },
+        "backend": "onnx"
+      }
+    ]
+  },
+  {
+    "backend": "onnx",
+    "concurrency": 16,
+    "config": {
+      "requests": 64,
+      "max_batch_size": 4,
+      "batch_timeout_ms": 5
+    },
+    "results": [
+      {
+        "mode": "direct",
+        "total_requests": 64,
+        "completed": 64,
+        "errors": 0,
+        "error_rate": 0.0,
+        "throughput_requests_per_second": 6336.1317914498795,
+        "latency_ms": {
+          "mean": 0.976610937485134,
+          "p50": 0.8966500004135014,
+          "p95": 1.4819850005096669,
+          "p99": 3.2509139997546206
+        },
+        "queue_wait_ms": {
+          "mean": 0.0,
+          "p95": 0.0
+        },
+        "backend_execution_ms": {
+          "mean": 0.976610937485134,
+          "p95": 1.4819850005096669
+        },
+        "batch_size_distribution": {},
+        "backend": "onnx"
+      },
+      {
+        "mode": "batched",
+        "total_requests": 64,
+        "completed": 64,
+        "errors": 0,
+        "error_rate": 0.0,
+        "throughput_requests_per_second": 14159.292036958153,
+        "latency_ms": {
+          "mean": 0.9451390625088152,
+          "p50": 0.8120999996208411,
+          "p95": 1.637104999917938,
+          "p99": 1.6686700004720478
+        },
+        "queue_wait_ms": {
+          "mean": 0.7538609375785654,
+          "p95": 1.490625000178625
+        },
+        "backend_execution_ms": {
+          "mean": 0.16487500008111056,
+          "p95": 0.5537150000236585
+        },
+        "batch_size_distribution": {
+          "4": 60,
+          "3": 3,
+          "1": 1
+        },
+        "backend": "onnx"
+      }
+    ]
+  }
+]

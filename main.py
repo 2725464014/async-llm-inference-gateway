@@ -1,4 +1,5 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from typing import Literal
 import uuid
@@ -11,9 +12,21 @@ from inference_service import InferenceService
 from mock_backend import MockBackend
 
 mock_backend = MockBackend()
-inference_service = InferenceService(mock_backend, timeout_seconds=0.5)
+backend_name = os.getenv("INFERENCE_BACKEND", "mock").strip().lower()
+if backend_name == "mock":
+    active_backend = mock_backend
+elif backend_name == "onnx":
+    from onnx_backend import OnnxBackend
+
+    active_backend = OnnxBackend()
+else:
+    raise ValueError(
+        "INFERENCE_BACKEND must be either 'mock' or 'onnx'"
+    )
+
+inference_service = InferenceService(active_backend, timeout_seconds=0.5)
 batching_service = BatchingService(
-    mock_backend,
+    active_backend,
     max_batch_size=4,
     batch_timeout_seconds=0.01,
 )
@@ -76,6 +89,9 @@ async def create_chat_completion(
     return {
         "request_id": request_id,
         "latency_ms": backend_response["latency_ms"],
+        "queue_wait_ms": backend_response["queue_wait_ms"],
+        "backend_execution_ms": backend_response["backend_execution_ms"],
+        "batch_size": backend_response["batch_size"],
         "id": "chatcmpl-123",
         "object": "chat.completion",
         "created": 1677652288,

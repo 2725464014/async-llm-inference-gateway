@@ -80,3 +80,29 @@ async def test_batch_timeout_processes_incomplete_batch():
 
     assert response["content"] == "response: timeout-triggered"
     assert backend.batch_sizes == [1]
+
+
+class BlockingBackend:
+    def __init__(self):
+        self.started = asyncio.Event()
+
+    async def generate_batch(self, requests):
+        self.started.set()
+        await asyncio.Event().wait()
+
+
+@pytest.mark.asyncio
+async def test_stop_unblocks_inflight_request():
+    backend = BlockingBackend()
+    service = BatchingService(backend, max_batch_size=1, batch_timeout_seconds=0.05)
+
+    await service.start()
+    request_task = asyncio.create_task(service.submit(make_request("pending")))
+    await asyncio.wait_for(backend.started.wait(), timeout=0.2)
+
+    await service.stop()
+
+    with pytest.raises(RuntimeError, match="stopped"):
+        await request_task
+
+    assert service.worker_task is None

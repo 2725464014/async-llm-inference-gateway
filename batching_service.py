@@ -3,7 +3,7 @@ import time
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(eq=False)
 class QueueItem:
     request: object
     future: asyncio.Future
@@ -11,12 +11,7 @@ class QueueItem:
 
 
 class BatchingService:
-    def __init__(
-        self,
-        backend,
-        max_batch_size: int,
-        batch_timeout_seconds: float,
-    ):
+    def __init__(self, backend, max_batch_size: int, batch_timeout_seconds: float):
         if max_batch_size < 1:
             raise ValueError("max_batch_size must be at least 1")
         if batch_timeout_seconds <= 0:
@@ -27,6 +22,7 @@ class BatchingService:
         self.batch_timeout_seconds = batch_timeout_seconds
         self.queue = asyncio.Queue()
         self.worker_task = None
+        self.pending_items = set()
 
     async def start(self):
         if self.worker_task is None or self.worker_task.done():
@@ -39,25 +35,41 @@ class BatchingService:
 
         loop = asyncio.get_running_loop()
         future = loop.create_future()
-        await self.queue.put(
-            QueueItem(
-                request=request,
-                future=future,
-                enqueued_at=time.perf_counter(),
-            )
+        item = QueueItem(
+            request=request,
+            future=future,
+            enqueued_at=time.perf_counter(),
         )
-        return await future
+        self.pending_items.add(item)
+
+        try:
+            await self.queue.put(item)
+            return await future
+        except asyncio.CancelledError:
+            self.pending_items.discard(item)
+            raise
+        except BaseException:
+            self.pending_items.discard(item)
+            raise
 
     async def stop(self):
         if self.worker_task is None:
             return
 
-        self.worker_task.cancel()
+        worker_task = self.worker_task
+        worker_task.cancel()
         try:
-            await self.worker_task
+            await worker_task
         except asyncio.CancelledError:
             pass
         finally:
+            stop_error = RuntimeError(
+                "BatchingService stopped before request completed"
+            )
+            for item in list(self.pending_items):
+                if not item.future.done():
+                    item.future.set_exception(stop_error)
+                self.pending_items.discard(item)
             self.worker_task = None
 
     async def _worker_loop(self):
@@ -98,12 +110,15 @@ class BatchingService:
                 )
         except Exception as exc:
             for item in batch:
+                self.pending_items.discard(item)
                 if not item.future.done():
                     item.future.set_exception(exc)
             return
 
         completed_at = time.perf_counter()
+        backend_execution_ms = (completed_at - batch_started_at) * 1000
         for item, response in zip(batch, responses):
+            self.pending_items.discard(item)
             if not item.future.done():
                 item.future.set_result(
                     {
@@ -114,6 +129,7 @@ class BatchingService:
                         "latency_ms": (
                             completed_at - item.enqueued_at
                         ) * 1000,
+                        "backend_execution_ms": backend_execution_ms,
                         "batch_size": len(batch),
                     }
                 )

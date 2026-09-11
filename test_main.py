@@ -146,6 +146,9 @@ def test_endpoint_uses_batching_service(monkeypatch):
             "role": "assistant",
             "content": "response from service",
             "latency_ms": 1.25,
+            "queue_wait_ms": 0.1,
+            "backend_execution_ms": 1.0,
+            "batch_size": 1,
         }
 
     monkeypatch.setattr(
